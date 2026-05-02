@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: gridmind-db
+    environment:
+      POSTGRES_DB: gridmind
+      POSTGRES_USER: gridmind
+      POSTGRES_PASSWORD: gridmind123
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gridmind -d gridmind"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
