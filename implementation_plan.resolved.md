@@ -2,11 +2,7 @@
 
 ## Background
 
-The existing `energy-hackdays-anomaly-detection` (meterOS) repo is massively over-engineered:
-- **meter-service/**: A Java Spring Boot microservice with Kafka, MongoDB, MySQL, Jaeger, Prometheus, Grafana — **DELETE entirely**.
-- **meter-ui/**: An Angular frontend — **DELETE entirely**.
-- **anomaly-detection-model/**: Contains 6 Jupyter notebooks (ARIMA, Isolation Forest, SVM, Monte Carlo), a bloated `requirements.txt` with TensorFlow/Keras/scikit-learn, and the core `app.py` — **Strip down to only `app.py` logic**.
-- Root-level images (.png, .jpg, .pptx, .docx) — **DELETE all**.
+The project aims to develop an edge-AI based anomaly detection system for smart meters to identify power theft in real-time. The system will use Monte Carlo frequency analysis for anomaly detection and PostgreSQL with PostGIS for spatial data storage and retrieval. The frontend will be a Next.js dashboard for visualization.
 
 ```
 aiForBharat/
@@ -90,7 +86,7 @@ DB_PASS=gridmind123
 
 ### Component 2: Database (PostgreSQL + PostGIS)
 
-#### [NEW] [init.sql](file:///c:/Users/naiti/Documents/aiForBharat/database/init.sql)
+#### [NEW] [init.sql]
 ```sql
 CREATE EXTENSION IF NOT EXISTS postgis;
 
