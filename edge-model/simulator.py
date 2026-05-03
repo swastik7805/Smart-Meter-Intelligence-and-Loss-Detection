@@ -10,7 +10,7 @@ import time
 import random
 import requests
 
-API_URL = "http://localhost:5000/predict"
+API_URL = "http://127.0.0.1:5000/predict"
 
 # ── Simulated meters around Bangalore ────────────────────────────────
 METERS = [

@@ -24,11 +24,7 @@ aiForBharat/
 │   ├── .env.local                 ← DB config for Next.js
 │   └── package.json               ← next, react, pg
 │
-├── docker-compose.yml             ← Spins up PostGIS 16
-│
-├── energy-hackdays-anomaly-detection/  ← ORIGINAL REPO (untouched, can delete later)
-├── anomaly_detection_explanation.md
-└── Problem statement.txt
+└── docker-compose.yml             ← Spins up PostGIS 16
 ```
 
 ---
@@ -43,7 +39,7 @@ aiForBharat/
 ### Terminal 1 — Start the Database
 
 ```bash
-cd c:\Users\naiti\Documents\aiForBharat
+cd aiForBharat
 docker compose up -d
 ```
 
@@ -56,7 +52,7 @@ You should see the `anomalies` table.
 ### Terminal 2 — Start the Edge Model
 
 ```bash
-cd c:\Users\naiti\Documents\aiForBharat\edge-model
+cd aiForBharat\edge-model
 pip install -r requirements.txt
 python app.py
 ```
@@ -66,7 +62,7 @@ You should see: `⚡ GridMind Edge-AI starting on http://0.0.0.0:5000`
 ### Terminal 3 — Start the Simulator
 
 ```bash
-cd c:\Users\naiti\Documents\aiForBharat\edge-model
+cd aiForBharat\edge-model
 python simulator.py
 ```
 
@@ -75,7 +71,7 @@ You'll see a stream of readings. Every ~18 readings per meter, it injects an ano
 ### Terminal 4 — Start the Dashboard
 
 ```bash
-cd c:\Users\naiti\Documents\aiForBharat\dashboard
+cd aiForBharat\dashboard
 npm run dev
 ```
 
@@ -107,38 +103,25 @@ flowchart LR
 
 ## Key Files Explained
 
-### [app.py](file:///c:/Users/naiti/Documents/aiForBharat/edge-model/app.py) — The Brain
+### [app.py] — The Brain
 - **What it kept from original**: The Monte Carlo frequency-based approach (`defaultdict` counting kWh frequencies)
 - **What it fixed**: The original `app.py` had a critical bug — `count` was a local variable inside `predict()`, meaning it reset to 0 on every request, so every value always had `freq = 1.0` and nothing was ever flagged. The new version uses module-level `total_count` dict tracked per meter.
 - **What it added**: Per-meter isolation, warm-up period (20 readings), auto-push to PostgreSQL via `db.py`
 
-### [simulator.py](file:///c:/Users/naiti/Documents/aiForBharat/edge-model/simulator.py) — The Demo Engine
+### [simulator.py] — The Demo Engine
 - 5 meters with Bangalore coordinates
 - Normal readings: Gaussian noise around each meter's baseline (3.2–7.5 kWh range)
 - Anomalies injected every ~18 readings: extreme drops (0.01 kWh = theft) or spikes (99.9 kWh = tampering)
 
-### [page.js](file:///c:/Users/naiti/Documents/aiForBharat/dashboard/app/page.js) — The Dashboard
+### [page.js] — The Dashboard
 - Polls `/api/anomalies` every 3 seconds
 - Shows: Total alerts, flagged meters, latest alert time
 - Table: timestamp, meter ID, kWh, severity badge with pulsing dot, confidence bar, coordinates
 - HIGH severity rows highlighted in red with left border
 
-### [init.sql](file:///c:/Users/naiti/Documents/aiForBharat/database/init.sql) — The Schema
+### [init.sql] — The Schema
 - PostGIS extension enabled
 - `GEOMETRY(Point, 4326)` column for spatial coordinates
 - Indexes on `created_at` (DESC for fast latest-first queries) and `meter_id`
 
 ---
-
-## What Was Deleted (Conceptually)
-
-| Component | Why |
-|---|---|
-| `meter-service/` (Java Spring Boot) | Kafka, MongoDB, MySQL, Jaeger, Prometheus, Grafana — massively over-engineered |
-| `meter-ui/` (Angular) | Replaced with Next.js dashboard |
-| All Jupyter notebooks (6 files) | ARIMA, Isolation Forest, SVM, EDA — not needed for prototype |
-| `requirements.txt` (96 packages) | TensorFlow, Keras, scikit-learn — replaced with 4 packages |
-| `.pptx`, `.docx`, `.png` images | Presentation artifacts from original hackathon |
-
-> [!NOTE]
-> The original `energy-hackdays-anomaly-detection/` directory was left untouched on disk. Delete it manually when you're ready: `Remove-Item -Recurse -Force .\energy-hackdays-anomaly-detection`

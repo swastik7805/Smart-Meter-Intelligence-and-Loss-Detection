@@ -21,7 +21,7 @@ freq_table = cl.defaultdict(lambda: cl.defaultdict(int))
 total_count = cl.defaultdict(int)
 
 # ── Tuning knobs ─────────────────────────────────────────────────────
-ALERT_THRESHOLD = 0.005   # flag if historical frequency < 0.5 %
+ALERT_THRESHOLD = 0.05    # flag if historical frequency < 5 %
 WARMUP_READINGS = 20      # don't flag until we've seen at least N readings
 
 
@@ -57,10 +57,13 @@ def predict():
         return flask.jsonify({"error": "Missing kWh field"}), 400
 
     # ── Online learning: update frequency table ──────────────────────
+    # Bin the continuous kWh to the nearest integer so normal frequencies build up
+    kwh_bin = round(kwh)
+    
     total_count[meter_id] += 1
-    freq_table[meter_id][kwh] += 1
+    freq_table[meter_id][kwh_bin] += 1
     count = total_count[meter_id]
-    freq = freq_table[meter_id][kwh] / count
+    freq = freq_table[meter_id][kwh_bin] / count
 
     # ── Default: non-anomalous ───────────────────────────────────────
     result = {

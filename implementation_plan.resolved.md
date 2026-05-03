@@ -2,13 +2,7 @@
 
 ## Background
 
-The existing `energy-hackdays-anomaly-detection` (meterOS) repo is massively over-engineered:
-- **meter-service/**: A Java Spring Boot microservice with Kafka, MongoDB, MySQL, Jaeger, Prometheus, Grafana — **DELETE entirely**.
-- **meter-ui/**: An Angular frontend — **DELETE entirely**.
-- **anomaly-detection-model/**: Contains 6 Jupyter notebooks (ARIMA, Isolation Forest, SVM, Monte Carlo), a bloated `requirements.txt` with TensorFlow/Keras/scikit-learn, and the core `app.py` — **Strip down to only `app.py` logic**.
-- Root-level images (.png, .jpg, .pptx, .docx) — **DELETE all**.
-
-We will rebuild a clean, **3-component prototype** directly in `c:\Users\naiti\Documents\aiForBharat\`:
+The project aims to develop an edge-AI based anomaly detection system for smart meters to identify power theft in real-time. The system will use Monte Carlo frequency analysis for anomaly detection and PostgreSQL with PostGIS for spatial data storage and retrieval. The frontend will be a Next.js dashboard for visualization.
 
 ```
 aiForBharat/
@@ -35,9 +29,6 @@ aiForBharat/
 > [!IMPORTANT]
 > **Next.js Version**: I'll scaffold the dashboard with Next.js 14 (App Router) using `npx create-next-app@latest`. Confirm if this is acceptable or if you have a version preference.
 
-> [!WARNING]
-> **Existing repo**: I will NOT delete `energy-hackdays-anomaly-detection/` from disk — I'll leave it untouched. All new code goes into fresh directories at the `aiForBharat/` root. You can delete the old repo manually later.
-
 ## Open Questions
 
 1. **Meter coordinates**: For PostGIS spatial data, should I use hardcoded demo coordinates (e.g., Bangalore area) for the simulated meters, or do you want a configurable list?
@@ -52,7 +43,7 @@ aiForBharat/
 
 The core Monte Carlo frequency model from the original `app.py` is preserved but significantly improved: proper per-meter tracking, persistent count, PostgreSQL push on anomaly, and a simulator script for live demos.
 
-#### [NEW] [app.py](file:///c:/Users/naiti/Documents/aiForBharat/edge-model/app.py)
+#### [NEW] [app.py]
 - **Flask API** with a single `/predict` POST endpoint
 - Receives JSON: `{ "Meter_ID": "M001", "kWh": 5.2, "lat": 12.97, "lon": 77.59 }`
 - Maintains a **per-meter** frequency dictionary (`defaultdict` of `defaultdict`)
@@ -61,19 +52,19 @@ The core Monte Carlo frequency model from the original `app.py` is preserved but
 - On anomaly detection → calls `db.insert_anomaly()` to push to PostgreSQL
 - Returns JSON response with `label`, `severity`, `prob`, `Meter_ID`
 
-#### [NEW] [db.py](file:///c:/Users/naiti/Documents/aiForBharat/edge-model/db.py)
+#### [NEW] [db.py]
 - Uses `psycopg2` to connect to PostgreSQL
 - `insert_anomaly(meter_id, kwh, lat, lon, severity, prob)` → inserts into `anomalies` table with PostGIS `ST_MakePoint(lon, lat)` for the geometry column
 - Connection params loaded from environment variables via `python-dotenv`
 
-#### [NEW] [simulator.py](file:///c:/Users/naiti/Documents/aiForBharat/edge-model/simulator.py)
+#### [NEW] [simulator.py]
 - Simulates N meters sending kWh readings to the Flask `/predict` endpoint
 - Normal readings: random values drawn from a normal distribution centered around each meter's baseline (e.g., 4.5–5.5 kWh)
 - Anomalous readings: injected every ~20 readings with extreme values (e.g., 0.1 kWh for theft/tampering, or 99.9 kWh for spike)
 - Sends POST requests to `http://localhost:5000/predict` with `Meter_ID`, `kWh`, `lat`, `lon`
 - Prints results to console in real-time
 
-#### [NEW] [requirements.txt](file:///c:/Users/naiti/Documents/aiForBharat/edge-model/requirements.txt)
+#### [NEW] [requirements.txt]
 ```
 flask
 psycopg2-binary
@@ -82,7 +73,7 @@ requests
 ```
 Only 4 dependencies. No TensorFlow, no Keras, no scikit-learn, no pandas, no numpy.
 
-#### [NEW] [.env.example](file:///c:/Users/naiti/Documents/aiForBharat/edge-model/.env.example)
+#### [NEW] [.env.example]
 ```
 DB_HOST=localhost
 DB_PORT=5432
@@ -95,7 +86,7 @@ DB_PASS=gridmind123
 
 ### Component 2: Database (PostgreSQL + PostGIS)
 
-#### [NEW] [init.sql](file:///c:/Users/naiti/Documents/aiForBharat/database/init.sql)
+#### [NEW] [init.sql]
 ```sql
 CREATE EXTENSION IF NOT EXISTS postgis;
 
@@ -121,7 +112,7 @@ CREATE INDEX idx_anomalies_meter_id ON anomalies(meter_id);
 - Uses Next.js App Router
 - Single page: `/` — the operator dashboard
 
-#### [NEW] [page.js](file:///c:/Users/naiti/Documents/aiForBharat/dashboard/app/page.js)
+#### [NEW] [page.js]
 - Client component that polls `/api/anomalies` every 3 seconds
 - Renders a styled, live-updating table:
   - Columns: **Time**, **Meter ID**, **kWh**, **Severity**, **Coordinates**
@@ -130,20 +121,20 @@ CREATE INDEX idx_anomalies_meter_id ON anomalies(meter_id);
 - Header with "GridMind" branding and a live status indicator
 - Dark theme, modern glassmorphism aesthetic
 
-#### [NEW] [route.js](file:///c:/Users/naiti/Documents/aiForBharat/dashboard/app/api/anomalies/route.js)
+#### [NEW] [route.js]
 - Next.js API route that connects to PostgreSQL
 - `GET /api/anomalies` → queries last 100 anomalies ordered by `created_at DESC`
 - Returns JSON array with `id`, `meter_id`, `kwh`, `severity`, `probability`, `lat`, `lon`, `created_at`
 - Uses the `pg` npm package for database connection
 
-#### [NEW] [globals.css](file:///c:/Users/naiti/Documents/aiForBharat/dashboard/app/globals.css)
+#### [NEW] [globals.css]
 - Dark mode color scheme
 - Glassmorphism card effects
 - Pulsing live indicator animation
 - Smooth row entrance animations
 - Modern typography (Inter from Google Fonts — already default in Next.js)
 
-#### [NEW] [layout.js](file:///c:/Users/naiti/Documents/aiForBharat/dashboard/app/layout.js)
+#### [NEW] [layout.js]
 - Root layout with proper SEO meta tags (title: "GridMind Dashboard", description)
 - Dark background applied globally
 
@@ -151,7 +142,7 @@ CREATE INDEX idx_anomalies_meter_id ON anomalies(meter_id);
 
 ### Component 4: Orchestration
 
-#### [NEW] [docker-compose.yml](file:///c:/Users/naiti/Documents/aiForBharat/docker-compose.yml)
+#### [NEW] [docker-compose.yml]
 ```yaml
 services:
   db:
