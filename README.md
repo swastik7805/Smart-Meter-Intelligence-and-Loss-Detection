@@ -69,6 +69,14 @@ docker-compose up -d
 ### 2. Start the Edge Model & API
 ```bash
 cd edge-model
+# Create and activate a virtual environment
+python -m venv venv
+# On Windows: .\venv\Scripts\activate
+# On Mac/Linux: source venv/bin/activate
+
+# Set up environment variables
+cp .env.example .env
+
 pip install -r requirements.txt
 python app.py
 ```
@@ -76,6 +84,10 @@ python app.py
 ### 3. Start the Data Simulator (in a new terminal)
 ```bash
 cd edge-model
+# Make sure your virtual environment is activated first!
+# On Windows: .\venv\Scripts\activate
+# On Mac/Linux: source venv/bin/activate
+
 python simulator.py
 ```
 
@@ -85,4 +97,6 @@ cd dashboard
 npm install
 npm run dev
 ```
+*(Note: If you encounter database connection errors due to port conflicts with a local PostgreSQL installation, update the port in `docker-compose.yml`, `edge-model/.env`, and create a `dashboard/.env.local` file with the new `DB_PORT`).*
+
 Open **http://localhost:3000** to view the live anomaly alerts!
