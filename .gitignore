@@ -3,3 +3,5 @@ edge-model/venv/
 venv/
 .venv/
 .env*
+!.env.example
+!.env.local.example

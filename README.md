@@ -94,9 +94,13 @@ python simulator.py
 ### 4. Start the Dashboard (in a new terminal)
 ```bash
 cd dashboard
+
+# Set up environment variables
+cp .env.local.example .env.local
+
 npm install
 npm run dev
 ```
-*(Note: If you encounter database connection errors due to port conflicts with a local PostgreSQL installation, update the port in `docker-compose.yml`, `edge-model/.env`, and create a `dashboard/.env.local` file with the new `DB_PORT`).*
+*(Note: The database uses port 5433 by default to prevent conflicts with local PostgreSQL installations. If you still encounter conflicts, update the port in `docker-compose.yml`, `edge-model/.env`, and `dashboard/.env.local`).*
 
 Open **http://localhost:3000** to view the live anomaly alerts!

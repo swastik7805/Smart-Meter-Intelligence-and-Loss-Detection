@@ -11,7 +11,7 @@ load_dotenv()
 
 DB_CONFIG = {
     "host": os.getenv("DB_HOST", "localhost"),
-    "port": os.getenv("DB_PORT", "5432"),
+    "port": os.getenv("DB_PORT", "5433"),
     "dbname": os.getenv("DB_NAME", "gridmind"),
     "user": os.getenv("DB_USER", "gridmind"),
     "password": os.getenv("DB_PASS", "gridmind123"),
