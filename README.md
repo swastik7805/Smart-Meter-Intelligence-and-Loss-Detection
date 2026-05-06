@@ -6,11 +6,12 @@
 
 ## 🧠 Current Statistical Model (Edge Engine)
 
-Deploying heavy Machine Learning models (like Neural Networks) on edge devices is expensive and slow. GridMind currently solves this using an **Ultra-lightweight Monte Carlo / Frequency-Based Statistical Model**:
+Deploying heavy Machine Learning models (like Neural Networks) on edge devices is expensive and slow. GridMind currently solves this using an **Ultra-lightweight Welford's Online Z-Score Statistical Model**:
 
-- **Online Learning:** The model does not require pre-training. It observes the first 20 readings of any meter (Warm-up Phase) to establish a mathematical baseline dynamically.
-- **Data Binning:** Continuous floating-point readings (e.g., 5.12 kWh) are grouped into bins (nearest integer).
-- **O(1) Time Complexity:** It calculates the historical frequency of every reading in constant time. If a new reading falls into a bin that occurs less than 5% of the time (e.g., a sudden drop to 0.01 kWh), it is instantly flagged as an anomaly.
+- **Online Learning:** The model does not require pre-training. It observes the first 20 readings of any meter (Warm-up Phase) to establish a mathematical baseline dynamically in real-time.
+- **Welford's Online Algorithm:** Instead of data binning, it processes continuous floating-point metrics (kWh) directly, calculating the running mean and standard deviation in a single pass.
+- **O(1) Time & Memory Complexity:** It computes the variance mathematically in constant time, storing only 3 variables per meter (`count`, `mean`, `m2`).
+- **Dynamic Z-Score Anomalies:** If a new reading has a Z-Score $\ge$ 3.0 (the 3-sigma rule), it is instantly flagged as an anomaly with a dynamically calculated severity and confidence score.
 
 ---
 
