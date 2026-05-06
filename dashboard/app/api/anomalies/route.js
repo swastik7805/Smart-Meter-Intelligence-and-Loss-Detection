@@ -1,10 +1,3 @@
-/**
- * GridMind — GET /api/anomalies
- *
- * Returns the latest 100 anomaly records from PostgreSQL,
- * with PostGIS coordinates extracted as lat/lon.
- */
-
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
 
