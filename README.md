@@ -4,6 +4,16 @@
 
 ---
 
+## 🧠 Current Statistical Model (Edge Engine)
+
+Deploying heavy Machine Learning models (like Neural Networks) on edge devices is expensive and slow. GridMind currently solves this using an **Ultra-lightweight Monte Carlo / Frequency-Based Statistical Model**:
+
+- **Online Learning:** The model does not require pre-training. It observes the first 20 readings of any meter (Warm-up Phase) to establish a mathematical baseline dynamically.
+- **Data Binning:** Continuous floating-point readings (e.g., 5.12 kWh) are grouped into bins (nearest integer).
+- **O(1) Time Complexity:** It calculates the historical frequency of every reading in constant time. If a new reading falls into a bin that occurs less than 5% of the time (e.g., a sudden drop to 0.01 kWh), it is instantly flagged as an anomaly.
+
+---
+
 ## 🏗️ Microservice Architecture
 
 The project is broken down into three completely decoupled microservices:
@@ -25,15 +35,6 @@ The project is broken down into three completely decoupled microservices:
 
 ---
 
-## 🧠 Current Statistical Model (Edge Engine)
-
-Deploying heavy Machine Learning models (like Neural Networks) on edge devices is expensive and slow. GridMind currently solves this using an **Ultra-lightweight Monte Carlo / Frequency-Based Statistical Model**:
-
-- **Online Learning:** The model does not require pre-training. It observes the first 20 readings of any meter (Warm-up Phase) to establish a mathematical baseline dynamically.
-- **Data Binning:** Continuous floating-point readings (e.g., 5.12 kWh) are grouped into bins (nearest integer).
-- **O(1) Time Complexity:** It calculates the historical frequency of every reading in constant time. If a new reading falls into a bin that occurs less than 5% of the time (e.g., a sudden drop to 0.01 kWh), it is instantly flagged as an anomaly.
-
----
 
 ## 🚀 Future Roadmap: Advanced ML Integration
 
@@ -68,6 +69,14 @@ docker-compose up -d
 ### 2. Start the Edge Model & API
 ```bash
 cd edge-model
+# Create and activate a virtual environment
+python -m venv venv
+# On Windows: .\venv\Scripts\activate
+# On Mac/Linux: source venv/bin/activate
+
+# Set up environment variables
+cp .env.example .env
+
 pip install -r requirements.txt
 python app.py
 ```
@@ -75,13 +84,23 @@ python app.py
 ### 3. Start the Data Simulator (in a new terminal)
 ```bash
 cd edge-model
+# Make sure your virtual environment is activated first!
+# On Windows: .\venv\Scripts\activate
+# On Mac/Linux: source venv/bin/activate
+
 python simulator.py
 ```
 
 ### 4. Start the Dashboard (in a new terminal)
 ```bash
 cd dashboard
+
+# Set up environment variables
+cp .env.local.example .env.local
+
 npm install
 npm run dev
 ```
+*(Note: The database uses port 5433 by default to prevent conflicts with local PostgreSQL installations. If you still encounter conflicts, update the port in `docker-compose.yml`, `edge-model/.env`, and `dashboard/.env.local`).*
+
 Open **http://localhost:3000** to view the live anomaly alerts!

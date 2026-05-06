@@ -1,3 +1,7 @@
 edge-model/__pycache__
-
-*/.env
+edge-model/venv/
+venv/
+.venv/
+.env*
+!.env.example
+!.env.local.example
