@@ -20,8 +20,7 @@ export default function Dashboard() {
   // Derived stats
   const totalAlerts = anomalies.length;
   const uniqueMeters = new Set(anomalies.map((a) => a.meter_id)).size;
-  const latestTime =
-    anomalies.length > 0 ? formatDate(anomalies[0].created_at) : "—";
+  const latestTime = anomalies.length > 0 ? formatDate(anomalies[0].created_at) : "—";
 
   return (
     <div className="app">

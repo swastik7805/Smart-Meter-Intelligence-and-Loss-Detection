@@ -22,10 +22,7 @@ export async function GET() {
 
     return NextResponse.json(rows);
   } catch (err) {
-    console.error("[API /anomalies] DB error:", err.message);
-    return NextResponse.json(
-      { error: "Failed to fetch anomalies" },
-      { status: 500 }
-    );
+    console.error("[API /anomalies] DB error details:", err);
+    return NextResponse.json({error: "Failed to fetch anomalies" },{status: 500 });
   }
 }

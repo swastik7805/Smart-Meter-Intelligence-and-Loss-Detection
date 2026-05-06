@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 const POLL_INTERVAL_MS = 2000;
-const EDGE_MODEL_URL = "http://127.0.0.1:5000";
+const EDGE_MODEL_URL = "http://localhost:5000";
 
 const INITIAL_METERS = [
   { meter_id: "BLR-M001", kwh: 0.0, is_warming_up: true, warmup_progress: 0, severity: "NONE", is_anomaly: false },
