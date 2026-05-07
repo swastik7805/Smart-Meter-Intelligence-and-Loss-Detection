@@ -6,13 +6,14 @@ sends it to the Edge-AI API. Injects anomalous readings periodically
 to demonstrate real-time theft / tampering detection.
 """
 
+import os
 import time
 import random
 import requests
 
-API_URL = "http://127.0.0.1:5000/predict"
+API_URL = os.getenv("API_URL", "http://localhost:5000/predict")
 
-# ── Simulated meters around Bangalore ────────────────────────────────
+#  Simulated meters around Bangalore 
 METERS = [
     {"Meter_ID": "BLR-M001", "lat": 12.9716, "lon": 77.5946, "baseline": 5.0},
     {"Meter_ID": "BLR-M002", "lat": 12.9352, "lon": 77.6245, "baseline": 7.5},
@@ -21,7 +22,7 @@ METERS = [
     {"Meter_ID": "BLR-M005", "lat": 12.9698, "lon": 77.7500, "baseline": 4.5},
 ]
 
-# ── Anomaly injection config ─────────────────────────────────────────
+#  Anomaly injection config 
 ANOMALY_EVERY_N = 18          # inject anomaly roughly every N readings per meter
 ANOMALY_VALUES = [0.01, 0.05, 99.9, 88.0, 0.0]  # theft drops & tamper spikes
 

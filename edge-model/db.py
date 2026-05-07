@@ -17,6 +17,10 @@ DB_CONFIG = {
     "password": os.getenv("DB_PASS", "gridmind123"),
 }
 
+# Neon DB requires SSL 
+if os.getenv("DB_SSLMODE"):
+    DB_CONFIG["sslmode"] = os.getenv("DB_SSLMODE")
+
 
 def get_connection():
     """Return a new psycopg2 connection."""
@@ -33,6 +37,17 @@ def insert_anomaly(meter_id, kwh, lat, lon, severity, probability):
     try:
         with conn.cursor() as cur:
             cur.execute(sql, (meter_id, kwh, severity, probability, lon, lat))
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def clear_anomalies():
+    """Remove all rows from the anomalies table – used for demo resets."""
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("TRUNCATE TABLE anomalies RESTART IDENTITY;")
         conn.commit()
     finally:
         conn.close()

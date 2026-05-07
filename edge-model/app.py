@@ -8,24 +8,26 @@ online learning and flags sudden consumption drops/spikes as anomalies
 using the 3-sigma rule.
 """
 
+import os
 import math
 import flask
 from flask_cors import CORS
-from db import insert_anomaly
+from db import insert_anomaly, clear_anomalies
 
-# ── Flask app ────────────────────────────────────────────────────────
 app = flask.Flask(__name__)
 CORS(app) 
+SERVER_URL = os.getenv("API_URL", "http://localhost:5000/predict")
+BASE_URL = "/".join(SERVER_URL.split("/")[:-1])
 
-# ── Online-learning state (per meter) ────────────────────────────────
+# Online-learning state (per meter) 
 # Welford's online algorithm state: {meter_id: {"count": n, "mean": μ, "m2": M2}}
 meter_stats = {}
 latest_readings = {}
 
-# ── Known meters (for /status zero-fill before data arrives) ─────────
+#  Known meters (for /status zero-fill before data arrives) 
 KNOWN_METERS = ["BLR-M001", "BLR-M002", "BLR-M003", "BLR-M004", "BLR-M005"]
 
-# ── Tuning knobs ─────────────────────────────────────────────────────
+#  Tuning knobs        
 Z_THRESHOLD = 3.0         # flag if |reading - mean| > Z * std_dev (3-sigma rule)
 WARMUP_READINGS = 20      # don't flag until we've seen at least N readings
 MIN_STD_DEV = 0.1         # floor to avoid div-by-zero on perfectly stable meters
@@ -74,11 +76,11 @@ def predict():
     if kwh is None:
         return flask.jsonify({"error": "Missing kWh field"}), 400
 
-    # ── Initialize meter state if first reading ──────────────────────
+    #  Initialize meter state if first reading 
     if meter_id not in meter_stats:
         meter_stats[meter_id] = {"count": 0, "mean": 0.0, "m2": 0.0}
 
-    # ── Compute Z-score BEFORE updating (test against learned baseline) ─
+    #  Compute Z-score BEFORE updating (test against learned baseline)
     stats = meter_stats[meter_id]
     count = stats["count"]
 
@@ -89,11 +91,11 @@ def predict():
     else:
         z_score = 0.0  # don't compute during warmup
 
-    # ── Online learning: update running mean/std with Welford's ──────
+    #  Online learning: update running mean/std with Welford's 
     stats, current_std = welford_update(stats, kwh)
     meter_stats[meter_id] = stats
 
-    # ── Store latest reading for /status endpoint ────────────────────
+    #  Store latest reading for /status endpoint 
     latest_readings[meter_id] = {
         "kwh": kwh,
         "count": stats["count"],
@@ -105,7 +107,7 @@ def predict():
         "severity": "NONE"
     }
 
-    # ── Default: non-anomalous ───────────────────────────────────────
+    #  Default: non-anomalous 
     result = {
         "Meter_ID": meter_id,
         "kWh": kwh,
@@ -114,7 +116,7 @@ def predict():
         "is_anomaly": False,
     }
 
-    # ── Anomaly detection (only after warm-up) ───────────────────────
+    #  Anomaly detection (only after warm-up) 
     if stats["count"] > WARMUP_READINGS and z_score >= Z_THRESHOLD:
         
         # Calculate variable severity & confidence based on Z-Score
@@ -191,7 +193,26 @@ def status():
             })
     return flask.jsonify(output)
 
-# ── Entry point ──────────────────────────────────────────────────────
+@app.route("/reset", methods=["POST"])
+def reset():
+    """
+    Clear all anomaly logs from DB and reset in-memory meter state.
+    Called by the frontend on each fresh browser session so that
+    judges always see a clean warm-up, not stale historical data.
+    """
+    global meter_stats, latest_readings
+    meter_stats = {}
+    latest_readings = {}
+    try:
+        clear_anomalies()
+        print("🔄 RESET | DB cleared + in-memory state wiped for fresh demo session")
+        return flask.jsonify({"status": "reset_complete"})
+    except Exception as e:
+        print(f"[RESET ERROR] DB clear failed: {e}")
+        return flask.jsonify({"status": "partial_reset", "error": str(e)}), 500
+
+
+#  Entry point 
 if __name__ == "__main__":
-    print("⚡ GridMind Edge-AI (Welford Z-Score) starting on http://0.0.0.0:5000")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    print(f" GridMind Edge-AI (Welford Z-Score) starting on {BASE_URL}")
+    app.run(host="0.0.0.0", port=5000, debug=False)
