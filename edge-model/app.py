@@ -57,7 +57,6 @@ def welford_update(stats, new_value):
 
 @app.route("/health", methods=["GET"])
 def health():
-    """Simple health-check endpoint."""
     return flask.jsonify({"status": "ok"})
 
 

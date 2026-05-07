@@ -1,0 +1,12 @@
+name: Keep Alive Render
+
+on:
+  schedule:
+    - cron: '*/10 * * * *' 
+
+jobs:
+  ping-model:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Health Endpoint of Edge Model Server
+        run: curl  https://smart-meter-intelligence-and-loss.onrender.com/health 
