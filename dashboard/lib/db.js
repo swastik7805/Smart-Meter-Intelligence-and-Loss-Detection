@@ -1,6 +1,4 @@
-/**
- * GridMind — PostgreSQL connection pool for the Next.js API layer.
- */
+// GridMind — PostgreSQL connection pool for the Next.js API layer.
 
 import { Pool } from "pg";
 
@@ -10,6 +8,7 @@ const pool = new Pool({
   database: process.env.DB_NAME || "gridmind",
   user: process.env.DB_USER || "gridmind",
   password: process.env.DB_PASS || "gridmind123",
+  ssl: process.env.DB_SSLMODE === "require" ? { rejectUnauthorized: false } : false,
 });
 
 export default pool;

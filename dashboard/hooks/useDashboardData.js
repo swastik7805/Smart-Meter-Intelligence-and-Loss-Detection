@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
 const POLL_INTERVAL_MS = 2000;
-const EDGE_MODEL_URL = "http://localhost:5000";
+const EDGE_MODEL_URL = process.env.NEXT_PUBLIC_EDGE_MODEL_URL || "http://localhost:5000";
 
 const INITIAL_METERS = [
   { meter_id: "BLR-M001", kwh: 0.0, is_warming_up: true, warmup_progress: 0, severity: "NONE", is_anomaly: false },
@@ -56,6 +56,21 @@ export function useDashboardData() {
       console.error("Failed to clear history", err);
     }
   };
+
+  // Auto-reset on fresh browser session 
+  useEffect(() => {
+    const isNewSession = !sessionStorage.getItem("gridmind_session_active");
+    if (isNewSession) {
+      fetch(`${EDGE_MODEL_URL}/reset`, { method: "POST" })
+        .then(() => {
+          sessionStorage.setItem("gridmind_session_active", "true");
+          console.log("[GridMind] Fresh session — DB and meter stats reset.");
+        })
+        .catch((err) =>
+          console.warn("[GridMind] Reset call failed (backend may be cold-starting):", err)
+        );
+    }
+  }, []);
 
   useEffect(() => {
     fetchAnomalies();
