@@ -4,7 +4,7 @@
 
 ---
 
-## 🧠 Current Statistical Model (Edge Engine)
+##  Current Statistical Model (Edge Engine)
 
 Deploying heavy Machine Learning models (like Neural Networks) on edge devices is expensive and slow. GridMind currently solves this using an **Ultra-lightweight Welford's Online Z-Score Statistical Model**:
 
@@ -15,7 +15,7 @@ Deploying heavy Machine Learning models (like Neural Networks) on edge devices i
 
 ---
 
-## 🏗️ Microservice Architecture
+##  Microservice Architecture
 
 The project is broken down into three completely decoupled microservices:
 
@@ -37,7 +37,7 @@ The project is broken down into three completely decoupled microservices:
 ---
 
 
-## 🚀 Future Roadmap: Advanced ML Integration
+##  Future Roadmap: Advanced ML Integration
 
 While the current edge model is incredibly fast and perfect for catching **point anomalies** (sudden isolated spikes or drops), future iterations will adopt a **Hybrid Architecture** (Edge + Cloud) to catch subtle, long-term theft patterns:
 
@@ -48,7 +48,7 @@ While the current edge model is incredibly fast and perfect for catching **point
 
 ---
 
-## 🛠️ Improvements & Pending Work
+##  Improvements & Pending Work
 
 To make this system fully production-ready, the following improvements are planned:
 
@@ -59,7 +59,7 @@ To make this system fully production-ready, the following improvements are plann
 
 ---
 
-## 💻 How to Run Locally
+##  How to Run Locally
 
 ### 1. Start the Database
 Ensure Docker Desktop is running, then start the PostGIS container:
